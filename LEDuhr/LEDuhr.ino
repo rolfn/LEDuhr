@@ -97,7 +97,7 @@ void setup() {
 
         // render one dot per second while initializing
         static uint8_t count = 0;
-        Serial.print('.');
+        Serial.print('*');
         ++count;
         if (count == 60) {
             count = 0;
@@ -116,12 +116,15 @@ void loop() {
 
     DCF77_Clock::get_current_time(now);
     if (now.month.val > 0) {
+        DCF77_Clock::debug();
+        /*
         switch (DCF77_Clock::get_clock_state()) {
             case Clock::useless: Serial.print(F("useless ")); break;
             case Clock::dirty:   Serial.print(F("dirty:  ")); break;
             case Clock::synced:  Serial.print(F("synced: ")); break;
             case Clock::locked:  Serial.print(F("locked: ")); break;
         }
+        */
         Serial.print(' ');
 
         Serial.print(F("20"));
