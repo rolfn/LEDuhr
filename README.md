@@ -1,2 +1,2 @@
-# LEDuhrArduino
-Ein AVR-Projekt 
+# LEDuhr
+Ein Arduino-Projekt
