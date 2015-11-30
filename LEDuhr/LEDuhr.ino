@@ -116,15 +116,15 @@ void loop() {
 
     DCF77_Clock::get_current_time(now);
     if (now.month.val > 0) {
-        DCF77_Clock::debug();
-        /*
         switch (DCF77_Clock::get_clock_state()) {
-            case Clock::useless: Serial.print(F("useless ")); break;
-            case Clock::dirty:   Serial.print(F("dirty:  ")); break;
-            case Clock::synced:  Serial.print(F("synced: ")); break;
-            case Clock::locked:  Serial.print(F("locked: ")); break;
+            case Clock::useless:  Serial.print(F("useless"));  break;
+            case Clock::dirty:    Serial.print(F("dirty"));    break;
+            case Clock::free:     Serial.print(F("free"));     break;
+            case Clock::unlocked: Serial.print(F("unlocked")); break;
+            case Clock::locked:   Serial.print(F("locked"));   break;
+            case Clock::synced:   Serial.print(F("synced"));   break;
+            default:              Serial.print(F("undefined"));
         }
-        */
         Serial.print(' ');
 
         Serial.print(F("20"));
@@ -143,6 +143,16 @@ void loop() {
 
         Serial.print("+0");
         Serial.print(now.uses_summertime? '2': '1');
+        Serial.print(F("  "));
+        Serial.print(millis());
         Serial.println();
     }
 }
+
+/*
+
+https://github.com/t3db0t/Button
+https://github.com/mathertel/OneButton !!!
+
+*/
+
