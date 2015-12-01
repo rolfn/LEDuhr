@@ -9,7 +9,7 @@
     Code based on http://w8bh.net/avr/AvrSSD1.pdf changed to work
     with Peter Fleury's I2C Library
       http://homepage.hispeed.ch/peterfleury/avr-software.html
-    Rolf Niepraschk, Rolf.Niepraschk@gmx.de
+    Rolf Niepraschk, Rolf.Niepraschk@gmx.de, 9/2014
 */
 
 void I2C_WriteByte(uint8_t busAddr, uint8_t data) {

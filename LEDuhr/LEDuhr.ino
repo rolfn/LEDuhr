@@ -156,5 +156,8 @@ void loop() {
 https://github.com/t3db0t/Button
 https://github.com/mathertel/OneButton !!!
 
+https://github.com/adafruit/Adafruit-LED-Backpack-Library
+https://learn.sparkfun.com/tutorials/using-the-serial-7-segment-display/example-3-i2c
+
 */
 
