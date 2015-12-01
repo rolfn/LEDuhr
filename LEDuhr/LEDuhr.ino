@@ -18,8 +18,8 @@
 
 #include <dcf77.h>
 #include "RN-utils.h"
+#include "buttons.h"
 
-#if defined(__AVR__)
 const uint8_t dcf77_analog_sample_pin = 5;
 const uint8_t dcf77_sample_pin = A5;       // A5 == d19
 const uint8_t dcf77_inverted_samples = 1;
@@ -29,38 +29,22 @@ const uint8_t dcf77_pull_up = 0;
 //const uint8_t dcf77_monitor_led = 18;  // A4 == d18
 const uint8_t dcf77_monitor_led = 13;
 
-uint8_t ledpin(const uint8_t led) {
-    return led;
-}
-#else
-const uint8_t dcf77_sample_pin = 53;
-const uint8_t dcf77_inverted_samples = 0;
-const uint8_t dcf77_pull_up = 1;
-
-const uint8_t dcf77_monitor_led = 19;
-
-uint8_t ledpin(const uint8_t led) {
-    return led<14? led: led+(54-14);
-}
-#endif
-
 uint8_t sample_input_pin() {
-    const uint8_t sampled_data =
-        #if defined(__AVR__)
-        dcf77_inverted_samples ^ (dcf77_analog_samples? (analogRead(dcf77_analog_sample_pin) > 200)
-                                                      : digitalRead(dcf77_sample_pin));
-        #else
-        dcf77_inverted_samples ^ digitalRead(dcf77_sample_pin);
-        #endif
-
-    digitalWrite(ledpin(dcf77_monitor_led), sampled_data);
-    return sampled_data;
+  const uint8_t sampled_data =
+  dcf77_inverted_samples ^ (dcf77_analog_samples ?
+    (analogRead(dcf77_analog_sample_pin) > 200) :
+  digitalRead(dcf77_sample_pin));
+  digitalWrite(dcf77_monitor_led, sampled_data);
+  return sampled_data;
 }
 
 void setup() {
     using namespace Clock;
 
     Serial.begin(9600);
+    while (!Serial) {
+      ; // wait for serial port to connect. Needed for Leonardo only
+    }
     Serial.println();
     Serial.println(F("Simple DCF77 Clock V3.0"));
     Serial.println(F("(c) Udo Klein 2015"));
@@ -71,12 +55,12 @@ void setup() {
     #if defined(__AVR__)
     Serial.print(F("Analog Mode:   ")); Serial.println(dcf77_analog_samples);
     #endif
-    Serial.print(F("Monitor Pin:   ")); Serial.println(ledpin(dcf77_monitor_led));
+    Serial.print(F("Monitor Pin:   ")); Serial.println(dcf77_monitor_led);
     Serial.println();
     Serial.println();
     Serial.println(F("Initializing..."));
 
-    pinMode(ledpin(dcf77_monitor_led), OUTPUT);
+    pinMode(dcf77_monitor_led, OUTPUT);
 
     pinMode(dcf77_sample_pin, INPUT);
     digitalWrite(dcf77_sample_pin, dcf77_pull_up);
@@ -85,6 +69,14 @@ void setup() {
     DCF77_Clock::set_input_provider(sample_input_pin);
 
     restart_timer_0();
+    // Setup a new OneButton on pin A1.
+    OneButton button1(A1, true);
+
+    button1.attachClick(click1);
+    button1.attachDoubleClick(doubleclick1);
+    button1.attachLongPressStart(longPressStart1);
+    button1.attachLongPressStop(longPressStop1);
+    button1.attachDuringLongPress(longPress1);
 
     // Wait till clock is synced, depending on the signal quality this may take
     // rather long. About 5 minutes with a good signal, 30 minutes or longer
