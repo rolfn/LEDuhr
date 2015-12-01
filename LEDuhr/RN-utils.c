@@ -1,5 +1,5 @@
 
-#include "wiring_private.h"
+#include "RN-utils.h"
 
 void restart_timer_0() {
 // enable timer 0 overflow interrupt
