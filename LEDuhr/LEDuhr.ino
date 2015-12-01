@@ -17,6 +17,7 @@
 //  along with this program. If not, see http://www.gnu.org/licenses/
 
 #include <dcf77.h>
+#include "RN-utils.h"
 
 #if defined(__AVR__)
 const uint8_t dcf77_analog_sample_pin = 5;
@@ -83,6 +84,7 @@ void setup() {
     DCF77_Clock::setup();
     DCF77_Clock::set_input_provider(sample_input_pin);
 
+    restart_timer_0();
 
     // Wait till clock is synced, depending on the signal quality this may take
     // rather long. About 5 minutes with a good signal, 30 minutes or longer
