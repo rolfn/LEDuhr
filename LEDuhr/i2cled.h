@@ -1,7 +1,7 @@
 #ifndef I2CLED_H
 #define I2CLED_H  1
 
-#include "i2c/i2cmaster.h"
+#include "i2cmaster.h"
 
 #define SET_DP 0x80
 

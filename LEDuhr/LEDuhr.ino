@@ -70,13 +70,21 @@ void setup() {
 
     restart_timer_0();
     // Setup a new OneButton on pin A1.
-    OneButton button1(A1, true);
+    OneButton button(A1, true);
 
-    button1.attachClick(click1);
-    button1.attachDoubleClick(doubleclick1);
-    button1.attachLongPressStart(longPressStart1);
-    button1.attachLongPressStop(longPressStop1);
-    button1.attachDuringLongPress(longPress1);
+    button.attachClick(click);
+    button.attachDoubleClick(doubleclick);
+    button.attachLongPressStart(longPressStart);
+    button.attachLongPressStop(longPressStop);
+    button.attachDuringLongPress(longPress);
+
+    i2c_init();
+    SS_Init(LED_DISP_1);                  //   initialize HT16K33 LED controller
+    SS_Init(LED_DISP_2);                  //   initialize HT16K33 LED controller
+    SS_SetBrightness(LED_DISP_1, 4);
+    SS_SetBrightness(LED_DISP_2, 0);
+    SS_SetColon(LED_DISP_1, 1);
+    SS_SetColon(LED_DISP_2, 0);
 
     // Wait till clock is synced, depending on the signal quality this may take
     // rather long. About 5 minutes with a good signal, 30 minutes or longer

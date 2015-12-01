@@ -8,6 +8,8 @@
 extern "C" {
 #endif
 
+#include "i2cled.h"
+
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
 #endif
@@ -16,6 +18,9 @@ extern "C" {
 #endif
 
 extern void restart_timer_0();
+
+#define LED_DISP_1 (0x70 << 1)
+#define LED_DISP_2 (0x71 << 1)
 
 #ifdef __cplusplus
 } // extern "C"

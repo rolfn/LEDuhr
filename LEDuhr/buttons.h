@@ -3,11 +3,11 @@
 
 #include "OneButton.h"
 
-extern void click1();
-extern void doubleclick1();
-extern void longPressStart1();
-extern void longPress1();
-extern void longPressStop1();
+extern void click();
+extern void doubleclick();
+extern void longPressStart();
+extern void longPress();
+extern void longPressStop();
 
 #endif // BUTTONS_H
 
