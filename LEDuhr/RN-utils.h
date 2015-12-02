@@ -8,8 +8,6 @@
 extern "C" {
 #endif
 
-#include "i2cled.h"
-
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
 #endif

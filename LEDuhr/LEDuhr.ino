@@ -19,6 +19,7 @@
 #include <dcf77.h>
 #include "RN-utils.h"
 #include "buttons.h"
+#include <ht16k33.h>
 
 const uint8_t dcf77_analog_sample_pin = 5;
 const uint8_t dcf77_sample_pin = A5;       // A5 == d19
@@ -37,6 +38,8 @@ uint8_t sample_input_pin() {
   digitalWrite(dcf77_monitor_led, sampled_data);
   return sampled_data;
 }
+
+HT16K33 HT;
 
 void setup() {
     using namespace Clock;
@@ -78,13 +81,8 @@ void setup() {
     button.attachLongPressStop(longPressStop);
     button.attachDuringLongPress(longPress);
 
-    i2c_init();
-    SS_Init(LED_DISP_1);                  //   initialize HT16K33 LED controller
-    SS_Init(LED_DISP_2);                  //   initialize HT16K33 LED controller
-    SS_SetBrightness(LED_DISP_1, 4);
-    SS_SetBrightness(LED_DISP_2, 0);
-    SS_SetColon(LED_DISP_1, 1);
-    SS_SetColon(LED_DISP_2, 0);
+    //Wire.begin();
+    //HT.begin(0x00);
 
     // Wait till clock is synced, depending on the signal quality this may take
     // rather long. About 5 minutes with a good signal, 30 minutes or longer
