@@ -18,7 +18,7 @@
 
 #include <dcf77.h>
 #include "RN-utils.h"
-#include "buttons.h"
+#include "button.h"
 #include <Adafruit_i2c_7seg_LED.h>
 
 const uint8_t dcf77_analog_sample_pin = 5;
@@ -30,7 +30,7 @@ const uint8_t dcf77_pull_up = 0;
 //const uint8_t dcf77_monitor_led = 18;  // A4 == d18
 const uint8_t dcf77_monitor_led = 13;
 
-Adafruit_DSP DISP1;
+Adafruit_LED DISP1;
 // Setup a new OneButton on pin A1. (aktive low)
 OneButton button(A1, true);
 

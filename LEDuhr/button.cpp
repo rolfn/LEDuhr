@@ -1,7 +1,11 @@
 
 #include "Arduino.h"
-#include "buttons.h"
+#include "button.h"
 
+/*
+http://www.mathertel.de/Arduino/OneButtonLibrary.aspx
+https://github.com/mathertel/OneButton
+*/
 
 // ----- button 1 callback functions
 
