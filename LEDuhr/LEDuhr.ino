@@ -19,7 +19,7 @@
 #include <dcf77.h>
 #include "RN-utils.h"
 #include "buttons.h"
-#include <ht16k33.h>
+#include <Adafruit_i2c_7seg_LED.h>
 
 const uint8_t dcf77_analog_sample_pin = 5;
 const uint8_t dcf77_sample_pin = A5;       // A5 == d19
@@ -30,24 +30,25 @@ const uint8_t dcf77_pull_up = 0;
 //const uint8_t dcf77_monitor_led = 18;  // A4 == d18
 const uint8_t dcf77_monitor_led = 13;
 
+Adafruit_DSP DISP1;
+// Setup a new OneButton on pin A1. (aktive low)
+OneButton button(A1, true);
+
 uint8_t sample_input_pin() {
   const uint8_t sampled_data =
   dcf77_inverted_samples ^ (dcf77_analog_samples ?
     (analogRead(dcf77_analog_sample_pin) > 200) :
   digitalRead(dcf77_sample_pin));
   digitalWrite(dcf77_monitor_led, sampled_data);
+  button.tick(); // ???
   return sampled_data;
 }
-
-HT16K33 HT;
 
 void setup() {
     using namespace Clock;
 
     Serial.begin(9600);
-    while (!Serial) {
-      ; // wait for serial port to connect. Needed for Leonardo only
-    }
+    while (!Serial); // Leonardo: wait for serial monitor
     Serial.println();
     Serial.println(F("Simple DCF77 Clock V3.0"));
     Serial.println(F("(c) Udo Klein 2015"));
@@ -72,14 +73,19 @@ void setup() {
     DCF77_Clock::set_input_provider(sample_input_pin);
 
     restart_timer_0();
-    // Setup a new OneButton on pin A1.
-    OneButton button(A1, true);
 
     button.attachClick(click);
     button.attachDoubleClick(doubleclick);
     button.attachLongPressStart(longPressStart);
     button.attachLongPressStop(longPressStop);
     button.attachDuringLongPress(longPress);
+
+    DISP1.begin(0x00);
+    DISP1.setPoint(COLON);
+    DISP1.setSymbol(DIGIT_1, MINUS);
+    DISP1.setSymbol(DIGIT_2, MINUS);
+    DISP1.setSymbol(DIGIT_3, MINUS);
+    DISP1.setSymbol(DIGIT_4, MINUS);
 
     //Wire.begin();
     //HT.begin(0x00);
@@ -90,6 +96,8 @@ void setup() {
     for (uint8_t state = Clock::useless;
         state == Clock::useless || state == Clock::dirty;
         state = DCF77_Clock::get_clock_state()) {
+
+        // button.tick(); // ?
 
         // wait for next sec
         Clock::time_t now;
@@ -145,7 +153,14 @@ void loop() {
         Serial.print(now.uses_summertime? '2': '1');
         Serial.print(F("  "));
         Serial.print(millis());
+        Serial.print(F("  "));
+        Serial.print(DCF77_Clock::get_overall_quality_factor());
         Serial.println();
+
+        DISP1.setDigit(DIGIT_1, now.hour.digit.hi);
+        DISP1.setDigit(DIGIT_2, now.hour.digit.lo);
+        DISP1.setDigit(DIGIT_3, now.minute.digit.hi);
+        DISP1.setDigit(DIGIT_4, now.minute.digit.lo);
     }
 }
 
