@@ -77,8 +77,7 @@ void setup() {
     button.attachClick(click);
     button.attachDoubleClick(doubleclick);
     button.attachLongPressStart(longPressStart);
-    //button.attachLongPressStop(longPressStop);
-    //button.attachDuringLongPress(longPress);
+    button.setPressTicks(2000);
 
     DISP1.begin(0x00);
     DISP1.setPoint(COLON);
