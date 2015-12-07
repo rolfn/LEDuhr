@@ -31,6 +31,8 @@ const uint8_t dcf77_pull_up = 0;
 const uint8_t dcf77_monitor_led = 13;
 
 Adafruit_LED DISP1;
+Adafruit_LED DISP2;
+
 // Setup a new OneButton on pin A1. (aktive low)
 OneButton button(A1, true);
 
@@ -61,7 +63,6 @@ void setup() {
     #endif
     Serial.print(F("Monitor Pin:   ")); Serial.println(dcf77_monitor_led);
     Serial.println();
-    Serial.println();
     Serial.println(F("Initializing..."));
 
     pinMode(dcf77_monitor_led, OUTPUT);
@@ -77,15 +78,20 @@ void setup() {
     button.attachClick(click);
     button.attachDoubleClick(doubleclick);
     button.attachLongPressStart(longPressStart);
+    button.attachLongPressStop(longPressStop);
     button.setPressTicks(2000);
 
     DISP1.begin(0x00);
+    DISP1.sleep();
+    DISP2.begin(0x01);
+    DISP2.sleep();
+    /*
     DISP1.setPoint(COLON);
     DISP1.setSymbol(DIGIT_1, MINUS);
     DISP1.setSymbol(DIGIT_2, MINUS);
     DISP1.setSymbol(DIGIT_3, MINUS);
     DISP1.setSymbol(DIGIT_4, MINUS);
-
+    */
     //Wire.begin();
     //HT.begin(0x00);
 
@@ -111,6 +117,10 @@ void setup() {
             Serial.println();
         }
     }
+    DISP1.normal();
+    DISP1.setPoint(COLON);
+    DISP1.setPoint(POINT_UPPER_LEFT);
+    DISP2.normal();
 }
 
 void paddedPrint(BCD::bcd_t n) {
@@ -160,6 +170,11 @@ void loop() {
         DISP1.setDigit(DIGIT_2, now.hour.digit.lo);
         DISP1.setDigit(DIGIT_3, now.minute.digit.hi);
         DISP1.setDigit(DIGIT_4, now.minute.digit.lo);
+
+        DISP2.setDigit(DIGIT_1, now.day.digit.hi);
+        DISP2.setDigit(DIGIT_2, now.day.digit.lo, true);
+        DISP2.setDigit(DIGIT_3, now.month.digit.hi);
+        DISP2.setDigit(DIGIT_4, now.month.digit.lo);
     }
 }
 

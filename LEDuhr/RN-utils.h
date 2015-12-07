@@ -15,7 +15,8 @@ extern "C" {
 #define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
 #endif
 
-extern void restart_timer_0();
+extern void restart_timer_0(void);
+extern void reboot(void);
 
 #define LED_DISP_1 (0x70 << 1)
 #define LED_DISP_2 (0x71 << 1)
