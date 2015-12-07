@@ -4,6 +4,9 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
+extern bool showDate;
+extern bool alarmActive;
+
 #ifdef __cplusplus
 extern "C" {
 #endif

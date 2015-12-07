@@ -3,6 +3,9 @@
 #include <avr/wdt.h>
 #include <Arduino.h>
 
+bool showDate = true;
+bool alarmActive = false;
+
 void restart_timer_0(void) {
 // enable timer 0 overflow interrupt
 // --> wiring.c

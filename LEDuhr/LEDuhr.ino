@@ -76,24 +76,16 @@ void setup() {
     restart_timer_0();
 
     button.attachClick(click);
-    button.attachDoubleClick(doubleclick);
+    //button.attachDoubleClick(doubleclick);
+    //button.attachDuringLongPress(longPress);
     button.attachLongPressStart(longPressStart);
     button.attachLongPressStop(longPressStop);
-    button.setPressTicks(2000);
+    button.setPressTicks(1000);
 
     DISP1.begin(0x00);
     DISP1.sleep();
     DISP2.begin(0x01);
     DISP2.sleep();
-    /*
-    DISP1.setPoint(COLON);
-    DISP1.setSymbol(DIGIT_1, MINUS);
-    DISP1.setSymbol(DIGIT_2, MINUS);
-    DISP1.setSymbol(DIGIT_3, MINUS);
-    DISP1.setSymbol(DIGIT_4, MINUS);
-    */
-    //Wire.begin();
-    //HT.begin(0x00);
 
     // Wait till clock is synced, depending on the signal quality this may take
     // rather long. About 5 minutes with a good signal, 30 minutes or longer
@@ -170,11 +162,23 @@ void loop() {
         DISP1.setDigit(DIGIT_2, now.hour.digit.lo);
         DISP1.setDigit(DIGIT_3, now.minute.digit.hi);
         DISP1.setDigit(DIGIT_4, now.minute.digit.lo);
+        if (alarmActive) {
+          DISP1.setPoint(POINT_UPPER_LEFT);
+        } else {
+          DISP1.clearPoint(POINT_UPPER_LEFT);
+        }
+        if (showDate) {
+          DISP2.setDigit(DIGIT_1, now.day.digit.hi ? now.day.digit.hi : BLANK);
+          DISP2.setDigit(DIGIT_2, now.day.digit.lo, true);
+          DISP2.setDigit(DIGIT_3, now.month.digit.hi ? now.month.digit.hi : BLANK);
+          DISP2.setDigit(DIGIT_4, now.month.digit.lo);
+        } else {
+          DISP2.setDigit(DIGIT_1, BLANK);
+          DISP2.setDigit(DIGIT_2, BLANK);
+          DISP2.setDigit(DIGIT_3, now.second.digit.hi);
+          DISP2.setDigit(DIGIT_4, now.second.digit.lo);
+        }
 
-        DISP2.setDigit(DIGIT_1, now.day.digit.hi);
-        DISP2.setDigit(DIGIT_2, now.day.digit.lo, true);
-        DISP2.setDigit(DIGIT_3, now.month.digit.hi);
-        DISP2.setDigit(DIGIT_4, now.month.digit.lo);
     }
 }
 
