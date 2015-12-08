@@ -4,7 +4,12 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
+#define SHOW_DATE 0
+#define SHOW_SEC  1
+#define SHOW_QTY  2
+
 extern bool showDate;
+extern uint8_t viewMode;
 extern bool alarmActive;
 
 #ifdef __cplusplus

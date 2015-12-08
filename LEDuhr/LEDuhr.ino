@@ -37,12 +37,15 @@ Adafruit_LED DISP2;
 OneButton button(A1, true);
 
 uint8_t sample_input_pin() {
+  /*
   const uint8_t sampled_data =
   dcf77_inverted_samples ^ (dcf77_analog_samples ?
     (analogRead(dcf77_analog_sample_pin) > 200) :
-  digitalRead(dcf77_sample_pin));
+  digitalRead(dcf77_sample_pin)); */
+  button.tick();
+  const uint8_t sampled_data = dcf77_inverted_samples ^
+    digitalRead(dcf77_sample_pin);
   digitalWrite(dcf77_monitor_led, sampled_data);
-  button.tick(); // ???
   return sampled_data;
 }
 
@@ -51,19 +54,6 @@ void setup() {
 
     Serial.begin(9600);
     while (!Serial); // Leonardo: wait for serial monitor
-    Serial.println();
-    Serial.println(F("Simple DCF77 Clock V3.0"));
-    Serial.println(F("(c) Udo Klein 2015"));
-    Serial.println(F("www.blinkenlight.net"));
-    Serial.println();
-    Serial.print(F("Sample Pin:    ")); Serial.println(dcf77_sample_pin);
-    Serial.print(F("Inverted Mode: ")); Serial.println(dcf77_inverted_samples);
-    #if defined(__AVR__)
-    Serial.print(F("Analog Mode:   ")); Serial.println(dcf77_analog_samples);
-    #endif
-    Serial.print(F("Monitor Pin:   ")); Serial.println(dcf77_monitor_led);
-    Serial.println();
-    Serial.println(F("Initializing..."));
 
     pinMode(dcf77_monitor_led, OUTPUT);
 
@@ -76,7 +66,7 @@ void setup() {
     restart_timer_0();
 
     button.attachClick(click);
-    //button.attachDoubleClick(doubleclick);
+    button.attachDoubleClick(doubleclick);
     //button.attachDuringLongPress(longPress);
     button.attachLongPressStart(longPressStart);
     button.attachLongPressStop(longPressStop);
@@ -105,8 +95,8 @@ void setup() {
         Serial.print('*');
         ++count;
         if (count == 60) {
-            count = 0;
-            Serial.println();
+          count = 0;
+          Serial.println();
         }
     }
     DISP1.normal();
@@ -156,6 +146,8 @@ void loop() {
         Serial.print(millis());
         Serial.print(F("  "));
         Serial.print(DCF77_Clock::get_overall_quality_factor());
+        Serial.print(F("  "));
+        Serial.print(DCF77_Clock::get_prediction_match());// ^-- Evtl. Doppelklick
         Serial.println();
 
         DISP1.setDigit(DIGIT_1, now.hour.digit.hi);
@@ -167,16 +159,24 @@ void loop() {
         } else {
           DISP1.clearPoint(POINT_UPPER_LEFT);
         }
-        if (showDate) {
-          DISP2.setDigit(DIGIT_1, now.day.digit.hi ? now.day.digit.hi : BLANK);
-          DISP2.setDigit(DIGIT_2, now.day.digit.lo, true);
-          DISP2.setDigit(DIGIT_3, now.month.digit.hi ? now.month.digit.hi : BLANK);
-          DISP2.setDigit(DIGIT_4, now.month.digit.lo);
-        } else {
-          DISP2.setDigit(DIGIT_1, BLANK);
-          DISP2.setDigit(DIGIT_2, BLANK);
-          DISP2.setDigit(DIGIT_3, now.second.digit.hi);
-          DISP2.setDigit(DIGIT_4, now.second.digit.lo);
+        switch (viewMode) {
+          case SHOW_DATE:
+            DISP2.setDigit(DIGIT_1, now.day.digit.hi ? now.day.digit.hi : BLANK);
+            DISP2.setDigit(DIGIT_2, now.day.digit.lo, true);
+            DISP2.setDigit(DIGIT_3, now.month.digit.hi ? now.month.digit.hi : BLANK);
+            DISP2.setDigit(DIGIT_4, now.month.digit.lo);
+            break;
+          case SHOW_SEC:
+            DISP2.setDigit(DIGIT_1, BLANK);
+            DISP2.setDigit(DIGIT_2, BLANK);
+            DISP2.setDigit(DIGIT_3, now.second.digit.hi);
+            DISP2.setDigit(DIGIT_4, now.second.digit.lo);
+            break;
+          case SHOW_QTY:
+            DISP2.setDigit(DIGIT_1, BLANK);
+            DISP2.setDigit(DIGIT_2, BLANK);
+            DISP2.setDigit(DIGIT_3, DCF77_Clock::get_prediction_match() >> 4);
+            DISP2.setDigit(DIGIT_4, DCF77_Clock::get_prediction_match() & 0x0F);
         }
 
     }

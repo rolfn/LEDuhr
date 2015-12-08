@@ -24,6 +24,7 @@ void click() {
 // This function will be called when the button was pressed 2 times in a short timeframe.
 void doubleclick() {
   // Serial.println("Button doubleclick.");
+  viewMode = SHOW_QTY;
 } // doubleclick
 
 
@@ -33,7 +34,6 @@ void longPressStart() {
   noInterrupts();
   longPressMillis = millis();
   interrupts();
-  // noInterrupts();
 } // longPressStart
 
 
@@ -48,17 +48,20 @@ void longPress() {
 
 // This function will be called once, when the button is released after beeing pressed for a long time.
 void longPressStop() {
-  // interrupts();
   // Serial.println("Button longPress stop");
   noInterrupts();
-  uint16_t m = millis();
-  if (m - longPressMillis > VERYLONG_WAIT) {
+  uint16_t d = millis() - longPressMillis;
+  if (d > VERYLONG_WAIT) {
     // Serial.println("VERYLONG");
     reboot();
   } else {
     // Serial.println("LONG");
-    showDate = !showDate;
+    //showDate = !showDate;
+    if (viewMode == SHOW_DATE) {
+      viewMode = SHOW_SEC;
+    } else {
+      viewMode = SHOW_DATE;
+    }
   }
   interrupts();
-  //longPressMillis = 0; // ???
 } // longPressStop
