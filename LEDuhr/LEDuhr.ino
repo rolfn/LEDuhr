@@ -161,12 +161,14 @@ void loop() {
         }
         switch (viewMode) {
           case SHOW_DATE:
+            DISP1.togglePoint(COLON);
             DISP2.setDigit(DIGIT_1, now.day.digit.hi ? now.day.digit.hi : BLANK);
             DISP2.setDigit(DIGIT_2, now.day.digit.lo, true);
             DISP2.setDigit(DIGIT_3, now.month.digit.hi ? now.month.digit.hi : BLANK);
             DISP2.setDigit(DIGIT_4, now.month.digit.lo);
             break;
           case SHOW_SEC:
+            DISP1.setPoint(COLON);
             DISP2.setDigit(DIGIT_1, BLANK);
             DISP2.setDigit(DIGIT_2, BLANK);
             DISP2.setDigit(DIGIT_3, now.second.digit.hi);
