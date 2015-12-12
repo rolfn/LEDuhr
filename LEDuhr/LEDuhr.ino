@@ -48,52 +48,24 @@ void setup() {
   while (!Serial); // Leonardo: wait for serial monitor
 
   pinMode(dcf77_monitor_led, OUTPUT);
-
   pinMode(dcf77_sample_pin, INPUT);
   digitalWrite(dcf77_sample_pin, dcf77_pull_up);
 
-  //DCF77_Clock::setup();
   DCF77_Clock::set_input_provider(sample_input_pin);
-
   restart_timer_0();
 
   button.attachClick(click);
   button.attachDoubleClick(doubleclick);
-  //button.attachDuringLongPress(longPress);
   button.attachLongPressStart(longPressStart);
   button.attachLongPressStop(longPressStop);
   button.setPressTicks(1000);
 
   DISP1.begin(0x00);
   DISP2.begin(0x01);
-  /*
-  // Wait till clock is synced, depending on the signal quality this may take
-  // rather long. About 5 minutes with a good signal, 30 minutes or longer
-  // with a bad signal
-  for (uint8_t state = Clock::useless;
-    state == Clock::useless || state == Clock::dirty;
-    state = DCF77_Clock::get_clock_state()) {
 
-    // button.tick(); // ?
-
-    // wait for next sec
-    Clock::time_t now;
-    DCF77_Clock::get_current_time(now);
-
-    // render one dot per second while initializing
-    static uint8_t count = 0;
-    Serial.print('*');
-    ++count;
-    if (count == 60) {
-      count = 0;
-      Serial.println();
-    }
-  }
-  DISP1.normal();
-  DISP1.setPoint(COLON);
-  DISP1.setPoint(POINT_UPPER_LEFT);
-  DISP2.normal();
-  */
+  theMode = SHOW_DATE;
+  syncing = true;
+  alarmActive = false;
 }
 
 void paddedPrint(BCD::bcd_t n) {
@@ -108,6 +80,61 @@ void loop() {
 
   DCF77_Clock::get_current_time(now);
   state = DCF77_Clock::get_clock_state();
+
+  using namespace Internal;
+  typedef DCF77_Clock_Controller<Configuration,
+    DCF77_Frequency_Control> Clock_Controller;
+
+  if (syncing) {
+    if (setupNeeded) {
+      setupNeeded = false;
+      DISP1.sleep();
+      DISP2.sleep();
+      Clock_Controller::Local_Clock.setup();
+      DCF77_Clock::setup();
+      Serial.println(F(" SYNCING "));
+    } else if (state != Clock::useless && state != Clock::dirty) {
+      DISP1.normal();
+      DISP2.normal();
+      setupNeeded = true;
+      syncing = false;
+    }
+  }
+
+  DISP1.setDigit(DIGIT_1, now.hour.digit.hi);
+  DISP1.setDigit(DIGIT_2, now.hour.digit.lo);
+  DISP1.setDigit(DIGIT_3, now.minute.digit.hi);
+  DISP1.setDigit(DIGIT_4, now.minute.digit.lo);
+
+  if (alarmActive) {
+    DISP1.setPoint(POINT_UPPER_LEFT);
+  } else {
+    DISP1.clearPoint(POINT_UPPER_LEFT);
+  }
+
+  switch (theMode) {
+    case SHOW_DATE:
+      DISP1.togglePoint(COLON);
+      DISP2.setDigit(DIGIT_1, now.day.digit.hi ? now.day.digit.hi : BLANK);
+      DISP2.setDigit(DIGIT_2, now.day.digit.lo, true);
+      DISP2.setDigit(DIGIT_3, now.month.digit.hi ? now.month.digit.hi : BLANK);
+      DISP2.setDigit(DIGIT_4, now.month.digit.lo);
+      break;
+    case SHOW_SEC:
+      DISP1.setPoint(COLON);
+      DISP2.setDigit(DIGIT_1, BLANK);
+      DISP2.setDigit(DIGIT_2, BLANK);
+      DISP2.setDigit(DIGIT_3, now.second.digit.hi);
+      DISP2.setDigit(DIGIT_4, now.second.digit.lo);
+      break;
+    case SHOW_QTY:
+      match = DCF77_Clock::get_prediction_match();
+      DISP2.setDigit(DIGIT_1, BLANK);
+      DISP2.setDigit(DIGIT_2, match / 100 % 10 ? match / 100 % 10 : BLANK);
+      DISP2.setDigit(DIGIT_3, match / 10  % 10 ? match / 10  % 10 : BLANK);
+      DISP2.setDigit(DIGIT_4, match % 10);
+  }
+
   switch (state) {
     case Clock::useless:  Serial.print(F("useless"));  break;
     case Clock::dirty:    Serial.print(F("dirty"));    break;
@@ -117,8 +144,8 @@ void loop() {
     case Clock::synced:   Serial.print(F("synced"));   break;
     default:              Serial.print(F("undefined"));
   }
-  Serial.print(' ');
 
+  Serial.print(' ');
   Serial.print(F("20"));
   paddedPrint(now.year);
   Serial.print('-');
@@ -144,59 +171,6 @@ void loop() {
   Serial.print(F(" mod:"));
   Serial.print(theMode);
   Serial.println();
-
-  DISP1.setDigit(DIGIT_1, now.hour.digit.hi);
-  DISP1.setDigit(DIGIT_2, now.hour.digit.lo);
-  DISP1.setDigit(DIGIT_3, now.minute.digit.hi);
-  DISP1.setDigit(DIGIT_4, now.minute.digit.lo);
-
-  if (alarmActive) {
-    DISP1.setPoint(POINT_UPPER_LEFT);
-  } else {
-    DISP1.clearPoint(POINT_UPPER_LEFT);
-  }
-
-  using namespace Internal;
-  typedef DCF77_Clock_Controller<Configuration,
-    DCF77_Frequency_Control> Clock_Controller;
-
-  if (syncing) {
-    if (setupNeeded) {
-      setupNeeded = false;
-      DISP1.sleep();
-      DISP2.sleep();
-      Clock_Controller::Local_Clock.setup();
-      DCF77_Clock::setup();
-      Serial.println(F(" SYNCING "));
-    } else if (state != Clock::useless && state != Clock::dirty) {
-      DISP1.normal();
-      DISP2.normal();
-      setupNeeded = true;
-      syncing = false;
-    }
-  }
-  switch (theMode) {
-    case SHOW_DATE:
-      DISP1.togglePoint(COLON);
-      DISP2.setDigit(DIGIT_1, now.day.digit.hi ? now.day.digit.hi : BLANK);
-      DISP2.setDigit(DIGIT_2, now.day.digit.lo, true);
-      DISP2.setDigit(DIGIT_3, now.month.digit.hi ? now.month.digit.hi : BLANK);
-      DISP2.setDigit(DIGIT_4, now.month.digit.lo);
-      break;
-    case SHOW_SEC:
-      DISP1.setPoint(COLON);
-      DISP2.setDigit(DIGIT_1, BLANK);
-      DISP2.setDigit(DIGIT_2, BLANK);
-      DISP2.setDigit(DIGIT_3, now.second.digit.hi);
-      DISP2.setDigit(DIGIT_4, now.second.digit.lo);
-      break;
-    case SHOW_QTY:
-      match = DCF77_Clock::get_prediction_match();
-      DISP2.setDigit(DIGIT_1, BLANK);
-      DISP2.setDigit(DIGIT_2, match / 100 % 10 ? match / 100 % 10 : BLANK);
-      DISP2.setDigit(DIGIT_3, match / 10  % 10 ? match / 10  % 10 : BLANK);
-      DISP2.setDigit(DIGIT_4, match % 10);
-  }
 }
 
 /*
