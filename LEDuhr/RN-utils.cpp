@@ -3,9 +3,9 @@
 #include <avr/wdt.h>
 #include <Arduino.h>
 
-bool showDate = true;
 bool alarmActive = false;
-uint8_t viewMode = SHOW_DATE;
+bool syncing = true;
+uint8_t theMode = SHOW_DATE;
 
 void restart_timer_0(void) {
 // enable timer 0 overflow interrupt

@@ -8,9 +8,8 @@
 #define SHOW_SEC  1
 #define SHOW_QTY  2
 
-extern bool showDate;
-extern uint8_t viewMode;
-extern bool alarmActive;
+extern uint8_t theMode;
+extern bool alarmActive, syncing;
 
 #ifdef __cplusplus
 extern "C" {
