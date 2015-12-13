@@ -24,7 +24,7 @@ void click() {
 // This function will be called when the button was pressed 2 times in a short timeframe.
 void doubleclick() {
   // Serial.println("Button doubleclick.");
-  theMode = SHOW_QTY;
+  viewMode = SHOW_QTY;
 } // doubleclick
 
 
@@ -58,10 +58,10 @@ void longPressStop() {
   } else {
     // Serial.println("LONG");
     //showDate = !showDate;
-    if (theMode == SHOW_DATE) {
-      theMode = SHOW_SEC;
+    if (viewMode == SHOW_DATE) {
+      viewMode = SHOW_SEC;
     } else {
-      theMode = SHOW_DATE;
+      viewMode = SHOW_DATE;
     }
   }
   interrupts();

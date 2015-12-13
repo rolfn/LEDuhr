@@ -3,18 +3,16 @@
 */
 
 #include <dcf77.h>
+#include <OneButton.h>
 #include <ht16k33.h>
 #include <Adafruit_i2c_7seg_LED.h>
-#include <OneButton.h>
 #include "RN-utils.h"
 #include "button.h"
 
-const uint8_t dcf77_analog_sample_pin = 5;
-const uint8_t dcf77_sample_pin = A5;
-const uint8_t dcf77_inverted_samples = 1;
-const uint8_t dcf77_analog_samples = 0;
-const uint8_t dcf77_pull_up = 0;
-const uint8_t dcf77_monitor_led = 13;
+#define DCF77_SAMPLE_PIN A5
+#define DCF77_INVERTED_SAMPLES 1
+#define DCF77_PULL_UP 0
+#define DCF77_MONITOR_LED 13
 
 Adafruit_LED DISP1;
 Adafruit_LED DISP2;
@@ -23,9 +21,9 @@ OneButton button(A1, true); // active low
 
 uint8_t sample_input_pin() {
   if (!syncing) button.tick();
-  const uint8_t sampled_data = dcf77_inverted_samples ^
-    digitalRead(dcf77_sample_pin);
-  digitalWrite(dcf77_monitor_led, sampled_data);
+  const uint8_t sampled_data = DCF77_INVERTED_SAMPLES ^
+    digitalRead(DCF77_SAMPLE_PIN);
+  digitalWrite(DCF77_MONITOR_LED, sampled_data);
   return sampled_data;
 }
 
@@ -33,9 +31,9 @@ void setup() {
   Serial.begin(9600);
   while (!Serial); // Leonardo: wait for serial monitor
 
-  pinMode(dcf77_monitor_led, OUTPUT);
-  pinMode(dcf77_sample_pin, INPUT);
-  digitalWrite(dcf77_sample_pin, dcf77_pull_up);
+  pinMode(DCF77_MONITOR_LED, OUTPUT);
+  pinMode(DCF77_SAMPLE_PIN, INPUT);
+  digitalWrite(DCF77_SAMPLE_PIN, DCF77_PULL_UP);
 
   DCF77_Clock::set_input_provider(sample_input_pin);
   restart_timer_0();
@@ -49,7 +47,7 @@ void setup() {
   DISP1.begin(0x00);
   DISP2.begin(0x01);
 
-  theMode = SHOW_DATE;
+  viewMode = SHOW_DATE;
   syncing = true;
   alarmActive = false;
 }
@@ -97,7 +95,7 @@ void loop() {
       DISP1.clearPoint(POINT_UPPER_LEFT);
     }
 
-    switch (theMode) {
+    switch (viewMode) {
       case SHOW_DATE:
         DISP1.togglePoint(COLON);
         DISP2.setDigit(DIGIT_1, now.day.digit.hi ? now.day.digit.hi : BLANK);
@@ -155,7 +153,7 @@ void loop() {
   Serial.print(F("  "));
   Serial.print(DCF77_Clock::get_prediction_match());
   Serial.print(F(" mod:"));
-  Serial.print(theMode);
+  Serial.print(viewMode);
   Serial.println();
 }
 

@@ -5,7 +5,7 @@
 
 bool alarmActive;
 bool syncing;
-uint8_t theMode;
+uint8_t viewMode;
 
 void restart_timer_0(void) {
 // enable timer 0 overflow interrupt
