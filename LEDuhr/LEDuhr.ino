@@ -1,37 +1,25 @@
-#include <Wire.h>
-
-#include <ht16k33.h>
-
-#include <OneButton.h>
-
-//
-//  www.blinkenlight.net
-//
-//  Copyright 2015 Udo Klein
-//
-
 /*
  see: https://github.com/udoklein/dcf77
 */
 
 #include <dcf77.h>
+#include <ht16k33.h>
+#include <Adafruit_i2c_7seg_LED.h>
+#include <OneButton.h>
 #include "RN-utils.h"
 #include "button.h"
-#include <Adafruit_i2c_7seg_LED.h>
 
 const uint8_t dcf77_analog_sample_pin = 5;
 const uint8_t dcf77_sample_pin = A5;
 const uint8_t dcf77_inverted_samples = 1;
 const uint8_t dcf77_analog_samples = 0;
 const uint8_t dcf77_pull_up = 0;
-
 const uint8_t dcf77_monitor_led = 13;
 
 Adafruit_LED DISP1;
 Adafruit_LED DISP2;
 
-// Setup a new OneButton on pin A1. (aktive low)
-OneButton button(A1, true);
+OneButton button(A1, true); // active low
 
 uint8_t sample_input_pin() {
   if (!syncing) button.tick();
@@ -42,8 +30,6 @@ uint8_t sample_input_pin() {
 }
 
 void setup() {
-  using namespace Clock;
-
   Serial.begin(9600);
   while (!Serial); // Leonardo: wait for serial monitor
 
@@ -99,40 +85,40 @@ void loop() {
       setupNeeded = true;
       syncing = false;
     }
-  }
-
-  DISP1.setDigit(DIGIT_1, now.hour.digit.hi);
-  DISP1.setDigit(DIGIT_2, now.hour.digit.lo);
-  DISP1.setDigit(DIGIT_3, now.minute.digit.hi);
-  DISP1.setDigit(DIGIT_4, now.minute.digit.lo);
-
-  if (alarmActive) {
-    DISP1.setPoint(POINT_UPPER_LEFT);
   } else {
-    DISP1.clearPoint(POINT_UPPER_LEFT);
-  }
+    DISP1.setDigit(DIGIT_1, now.hour.digit.hi);
+    DISP1.setDigit(DIGIT_2, now.hour.digit.lo);
+    DISP1.setDigit(DIGIT_3, now.minute.digit.hi);
+    DISP1.setDigit(DIGIT_4, now.minute.digit.lo);
 
-  switch (theMode) {
-    case SHOW_DATE:
-      DISP1.togglePoint(COLON);
-      DISP2.setDigit(DIGIT_1, now.day.digit.hi ? now.day.digit.hi : BLANK);
-      DISP2.setDigit(DIGIT_2, now.day.digit.lo, true);
-      DISP2.setDigit(DIGIT_3, now.month.digit.hi ? now.month.digit.hi : BLANK);
-      DISP2.setDigit(DIGIT_4, now.month.digit.lo);
-      break;
-    case SHOW_SEC:
-      DISP1.setPoint(COLON);
-      DISP2.setDigit(DIGIT_1, BLANK);
-      DISP2.setDigit(DIGIT_2, BLANK);
-      DISP2.setDigit(DIGIT_3, now.second.digit.hi);
-      DISP2.setDigit(DIGIT_4, now.second.digit.lo);
-      break;
-    case SHOW_QTY:
-      match = DCF77_Clock::get_prediction_match();
-      DISP2.setDigit(DIGIT_1, BLANK);
-      DISP2.setDigit(DIGIT_2, match / 100 % 10 ? match / 100 % 10 : BLANK);
-      DISP2.setDigit(DIGIT_3, match / 10  % 10 ? match / 10  % 10 : BLANK);
-      DISP2.setDigit(DIGIT_4, match % 10);
+    if (alarmActive) {
+      DISP1.setPoint(POINT_UPPER_LEFT);
+    } else {
+      DISP1.clearPoint(POINT_UPPER_LEFT);
+    }
+
+    switch (theMode) {
+      case SHOW_DATE:
+        DISP1.togglePoint(COLON);
+        DISP2.setDigit(DIGIT_1, now.day.digit.hi ? now.day.digit.hi : BLANK);
+        DISP2.setDigit(DIGIT_2, now.day.digit.lo, true);
+        DISP2.setDigit(DIGIT_3, now.month.digit.hi ? now.month.digit.hi : BLANK);
+        DISP2.setDigit(DIGIT_4, now.month.digit.lo);
+        break;
+      case SHOW_SEC:
+        DISP1.setPoint(COLON);
+        DISP2.setDigit(DIGIT_1, BLANK);
+        DISP2.setDigit(DIGIT_2, BLANK);
+        DISP2.setDigit(DIGIT_3, now.second.digit.hi);
+        DISP2.setDigit(DIGIT_4, now.second.digit.lo);
+        break;
+      case SHOW_QTY:
+        match = DCF77_Clock::get_prediction_match();
+        DISP2.setDigit(DIGIT_1, BLANK);
+        DISP2.setDigit(DIGIT_2, match / 100 % 10 ? match / 100 % 10 : BLANK);
+        DISP2.setDigit(DIGIT_3, match / 10  % 10 ? match / 10  % 10 : BLANK);
+        DISP2.setDigit(DIGIT_4, match % 10);
+    }
   }
 
   switch (state) {
