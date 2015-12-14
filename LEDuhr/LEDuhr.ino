@@ -14,7 +14,13 @@
 #define DCF77_PULL_UP 0
 #define DCF77_MONITOR_LED 13
 
-#define MAX_SYNC 30000
+#define MAX_SYNC 1800 // 30min
+#define SYNC_HOUR 0x21
+#define SYNC_MIN  0x45
+// #define SYNC_HOUR 0x03
+// #define SYNC_MIN  0x15 // 3:15
+
+#define BCD_TO_INT(x) ((uint8_t)(x / 10) * 16 + (x % 10))
 
 Adafruit_LED DISP1;
 Adafruit_LED DISP2;
@@ -48,6 +54,8 @@ void setup() {
 
   DISP1.begin(0x00);
   DISP2.begin(0x01);
+  DISP1.setBrightness(12);
+  DISP2.setBrightness(3);
 
   viewMode = SHOW_DATE;
   syncing = true;
@@ -63,8 +71,7 @@ void loop() {
   Clock::time_t now;
   uint8_t match, state;
   static bool syncStart = true;
-  uint16_t static volatile previousMillis;
-  uint16_t currentMillis = millis();
+  uint16_t currentSecnds;
 
   DCF77_Clock::get_current_time(now);
   state = DCF77_Clock::get_clock_state();
@@ -76,20 +83,23 @@ void loop() {
   if (syncing) {
     if (syncStart) {
       syncStart = false;
-      previousMillis = currentMillis;
+      currentSecnds = 0;
       DISP1.sleep();
       DISP2.sleep();
-      DCF77_Clock::setup(); // ?
+      //DCF77_Clock::setup(); // ?
       Serial.println(F(" SYNCING "));
     } else if (state == Clock::synced ||
-        currentMillis - previousMillis >= MAX_SYNC) {
+        currentSecnds >= MAX_SYNC) {
+      currentSecnds += 1;
       DISP1.normal();
       DISP2.normal();
       syncStart = true;
       syncing = false;
     }
   } else {
-    if (now.hour.val == 3 && now.minute.val == 15) syncing = true;
+    if (now.hour.val == SYNC_HOUR && now.minute.val == SYNC_MIN) syncing = true;
+
+    // uint8_t yyy = bcd_to_int(now.hour);
 
     if (alarmActive) {
       DISP1.setPoint(POINT_UPPER_LEFT);
