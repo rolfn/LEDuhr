@@ -80,12 +80,14 @@ void loop() {
       //DCF77_Clock::setup();
       DISP1.sleep();
       DISP2.sleep();
-    } else if (state == Clock::synced || currentSeconds >= MAX_SYNC) {
+    } else {
       currentSeconds++;
-      syncStart = true;
-      syncing = false;
-      DISP1.normal();
-      DISP2.normal();
+      if (state == Clock::synced || currentSeconds >= MAX_SYNC) {
+        syncStart = true;
+        syncing = false;
+        DISP1.normal();
+        DISP2.normal();
+      }
     }
   } else {
     if (now.hour.val   == SYNC_HOUR &&
