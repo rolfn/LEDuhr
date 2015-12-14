@@ -14,13 +14,9 @@
 #define DCF77_PULL_UP 0
 #define DCF77_MONITOR_LED 13
 
-#define MAX_SYNC 1800 // 30min
-#define SYNC_HOUR 0x21
-#define SYNC_MIN  0x45
-// #define SYNC_HOUR 0x03
-// #define SYNC_MIN  0x15 // 3:15
-
-#define BCD_TO_INT(x) ((uint8_t)(x / 10) * 16 + (x % 10))
+#define MAX_SYNC 1800  // 1800sec = 30min
+#define SYNC_HOUR 0x03
+#define SYNC_MINUTE  0x15 // 3:15
 
 Adafruit_LED DISP1;
 Adafruit_LED DISP2;
@@ -70,36 +66,30 @@ void paddedPrint(BCD::bcd_t n) {
 void loop() {
   Clock::time_t now;
   uint8_t match, state;
+  uint16_t currentSeconds;
   static bool syncStart = true;
-  uint16_t currentSecnds;
 
   DCF77_Clock::get_current_time(now);
   state = DCF77_Clock::get_clock_state();
 
-  using namespace Internal;
-  typedef DCF77_Clock_Controller<Configuration,
-    DCF77_Frequency_Control> Clock_Controller;
-
   if (syncing) {
     if (syncStart) {
       syncStart = false;
-      currentSecnds = 0;
+      Serial.println(F("SYNCING"));
+      currentSeconds = 0;
+      //DCF77_Clock::setup();
       DISP1.sleep();
       DISP2.sleep();
-      //DCF77_Clock::setup(); // ?
-      Serial.println(F(" SYNCING "));
-    } else if (state == Clock::synced ||
-        currentSecnds >= MAX_SYNC) {
-      currentSecnds += 1;
-      DISP1.normal();
-      DISP2.normal();
+    } else if (state == Clock::synced || currentSeconds >= MAX_SYNC) {
+      currentSeconds++;
       syncStart = true;
       syncing = false;
+      DISP1.normal();
+      DISP2.normal();
     }
   } else {
-    if (now.hour.val == SYNC_HOUR && now.minute.val == SYNC_MIN) syncing = true;
-
-    // uint8_t yyy = bcd_to_int(now.hour);
+    if (now.hour.val   == SYNC_HOUR &&
+        now.minute.val == SYNC_MINUTE) syncing = true;
 
     if (alarmActive) {
       DISP1.setPoint(POINT_UPPER_LEFT);
