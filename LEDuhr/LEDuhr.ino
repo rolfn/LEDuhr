@@ -14,6 +14,8 @@
 #define DCF77_PULL_UP 0
 #define DCF77_MONITOR_LED 13
 
+#define MAX_SYNC 30000
+
 Adafruit_LED DISP1;
 Adafruit_LED DISP2;
 
@@ -60,7 +62,9 @@ void paddedPrint(BCD::bcd_t n) {
 void loop() {
   Clock::time_t now;
   uint8_t match, state;
-  static bool setupNeeded = true;
+  static bool syncStart = true;
+  uint16_t static volatile previousMillis;
+  uint16_t currentMillis = millis();
 
   DCF77_Clock::get_current_time(now);
   state = DCF77_Clock::get_clock_state();
@@ -70,30 +74,33 @@ void loop() {
     DCF77_Frequency_Control> Clock_Controller;
 
   if (syncing) {
-    if (setupNeeded) {
-      setupNeeded = false;
+    if (syncStart) {
+      syncStart = false;
+      previousMillis = currentMillis;
       DISP1.sleep();
       DISP2.sleep();
-      Clock_Controller::Local_Clock.setup();
-      DCF77_Clock::setup();
+      DCF77_Clock::setup(); // ?
       Serial.println(F(" SYNCING "));
-    } else if (state != Clock::useless && state != Clock::dirty) {
+    } else if (state == Clock::synced ||
+        currentMillis - previousMillis >= MAX_SYNC) {
       DISP1.normal();
       DISP2.normal();
-      setupNeeded = true;
+      syncStart = true;
       syncing = false;
     }
   } else {
-    DISP1.setDigit(DIGIT_1, now.hour.digit.hi);
-    DISP1.setDigit(DIGIT_2, now.hour.digit.lo);
-    DISP1.setDigit(DIGIT_3, now.minute.digit.hi);
-    DISP1.setDigit(DIGIT_4, now.minute.digit.lo);
+    if (now.hour.val == 3 && now.minute.val == 15) syncing = true;
 
     if (alarmActive) {
       DISP1.setPoint(POINT_UPPER_LEFT);
     } else {
       DISP1.clearPoint(POINT_UPPER_LEFT);
     }
+
+    DISP1.setDigit(DIGIT_1, now.hour.digit.hi);
+    DISP1.setDigit(DIGIT_2, now.hour.digit.lo);
+    DISP1.setDigit(DIGIT_3, now.minute.digit.hi);
+    DISP1.setDigit(DIGIT_4, now.minute.digit.lo);
 
     switch (viewMode) {
       case SHOW_DATE:
@@ -117,6 +124,7 @@ void loop() {
         DISP2.setDigit(DIGIT_3, match / 10  % 10 ? match / 10  % 10 : BLANK);
         DISP2.setDigit(DIGIT_4, match % 10);
     }
+
   }
 
   switch (state) {
