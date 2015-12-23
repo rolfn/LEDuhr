@@ -122,8 +122,8 @@ void loop() {
       case SHOW_QTY:
         match = DCF77_Clock::get_prediction_match();
         DISP2.setDigit(DIGIT_1, BLANK);
-        DISP2.setDigit(DIGIT_2, match / 100 % 10 ? match / 100 % 10 : BLANK);
-        DISP2.setDigit(DIGIT_3, match / 10  % 10 ? match / 10  % 10 : BLANK);
+        DISP2.setDigit(DIGIT_2, match / 100 % 10);
+        DISP2.setDigit(DIGIT_3, match / 10  % 10);
         DISP2.setDigit(DIGIT_4, match % 10);
     }
 
