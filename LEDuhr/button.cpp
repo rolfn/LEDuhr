@@ -53,8 +53,8 @@ void longPressStop() {
   uint16_t d = millis() - longPressMillis;
   if (d > VERYLONG_WAIT) {
     // Serial.println("VERYLONG");
-    syncing = true;
-    //reboot();
+    //syncing = true;
+    reboot();
   } else {
     // Serial.println("LONG");
     //showDate = !showDate;

@@ -69,7 +69,7 @@ pen black $midLine solid; circle $indRad;
 moveto -$wd2 [expr [Y [here]] + $indRad + $dimDist];
 dimline [X $indicatorPos] [Y [here]];
 moveto [expr [X $indicatorPos] - $indRad - $dimDist] [expr [Y $indicatorPos] - $indRad];
-dimlinerel 0 [expr 2 * $indRad];
+dimlinerel 0 [expr 2 * $indRad] "ø[expr 2 * $indRad]";
 moveto [X $tmp] -$ht2;
 dimline "[X [here]] [Y $tmp]";
 
