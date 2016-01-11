@@ -14,7 +14,7 @@ set wd2DP2L  25;   # half width of display board 2  # 1.97" = 50.038mm
 set ht2DP2L  14.1; # half of display board 2 # 1.11" = 28.194mm
 set wd2DP2   25;   # half width of Display 2
 set ht2DP2   9.5;  # half height of Display 2
-set DP2posOffs -10;
+set DP2posOffs 0;
 
 set indRad   2.5;
 set DP1Rad   1.5;
@@ -50,7 +50,7 @@ set dp1UL "[X $board1UL] [expr [Y $board1UL] + $ht2DP1L - $ht2DP1]";
 set DP1pos $dp1UL;
 
 # upper left position of display 1
-set board2UL "0 [expr [Y $board1UL] + 2 * $ht2DP1L]";
+set board2UL "$DP2posOffs [expr [Y $board1UL] + 2 * $ht2DP1L]";
 # upper left position of display board 2
 set dp2UL "[X $board2UL] [expr [Y $board2UL] + $ht2DP2L - $ht2DP2]";
 # upper left position of display 2
